@@ -25,7 +25,7 @@ almond_function <- function(almond_df, graph = TRUE) {
       filter(month == 1) %>% 
       select(year)
   
-  
+
   # Equation 
   Y = -0.015 * (tmin_feb) - 0.0046 * (tmin_feb)^2 - 0.07 * (precip_jan) + 0.0043 * (precip_jan)^2 + 0.28
   
