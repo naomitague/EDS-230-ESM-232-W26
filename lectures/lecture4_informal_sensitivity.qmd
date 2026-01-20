@@ -337,7 +337,7 @@ Learn to "play" with models
 
 # Lab
 
-### Controlling for a 15% uncertainty 
+### Controlling for a 15% uncertainty
 
 ```{r}
 # Creating +- 15% Uncertainity 

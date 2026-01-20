@@ -121,5 +121,91 @@ R Implementation (30 pts)
   * correct function implementation (*.R file)  (10 pts)
   * application of the function to **clim.txt** (in Rmarkdown file) (10 pts)
   * coding practices (clear documentation, informative variables names)  (10 pts)
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(kableExtra)
+```
+
+Load Data 
+```{r}
+almonds <- read.table(here::here("Assignments", "clim.txt"), 
+           header = TRUE)
+```
+
+$$
+Y = -0.015T{n2} - 0.0046T{n2} - 0.07P{1} + 0.0043P{1} + 0.28
+$$
+Monthly Averages (per year) aggregated to state scale / crop area 
+```{r}
+almond_subset <- almonds %>% 
+  group_by(month, year) %>% 
+  summarize(tmin = mean(tmin_c, na.rm = TRUE), 
+            tmax = mean(tmax_c, na.rm = TRUE), 
+            precip = mean(precip,  na.rm = TRUE)) %>% 
+  ungroup()
+
+```
+
+Write the Function 
+```{r}
+#almond_function <- function(tmin_feb1, tmin_feb2, precip_jan1, precip_jan2) {
+  #Y = -0.015 * (tmin_feb1) - 0.0046 * (tmin_feb2) - 0.07 * (precip_jan1) + 0.0043 * (precip_jan2) + 0.28
+  #return(Y) }
+
+
+almond_function <- function(tmin_feb, precip_jan) {
+  Y = -0.015 * (tmin_feb) - 0.0046 * (tmin_feb)^2 - 0.07 * (precip_jan) + 0.0043 * (precip_jan)^2 + 0.28
+  return(Y)
+}
+
+```
+
+Lists to feed into function 
+```{r}
+# Pulling out just Feb tmin 
+tmin_feb <- almond_subset %>% 
+  filter(month == 2) %>% 
+  select(tmin)
+
+# Pullung out just January precipitation 
+precip_jan <- almond_subset %>% 
+  filter(month == 1) %>% 
+  select(precip)
+
+year <- almond_subset %>% 
+  filter(month == 1) %>% 
+  select(year)
+```
+
+Apply Function to tmin_feb and precip_jan
+```{r}
+alomond_anomaly <- almond_function(tmin_feb = tmin_feb,
+                                   precip_jan = precip_jan)
+```
+
+Combine anomalies and year values 
+```{r}
+alomond_df <- data.frame(yr = year, 
+           anomaly = alomond_anomaly)
+```
+
+Table and graph Yield Anomalies from 1989 to 2010
+```{r}
+ggplot(alomond_df, aes(x = year, y = tmin)) + 
+  geom_line() + 
+  labs(
+    x = "Year", 
+    y = "Yield Anomalies", 
+    title = "Almond Yeild Anomalies"
+  )
+
+
+alomond_df %>% 
+  kbl(col.names = c("Year", "Yield Anomaly")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
   
+```
 
